@@ -11,7 +11,8 @@ Added MAAGE origins to the partner handoff allowlist so that MAAGE-Web can send 
 Approved origins:
 - `http://localhost:3000` / `http://127.0.0.1:3000` (development)
 - `https://localhost:3000` (local HTTPS)
-- `https://www.maage.org` / `https://maage.org` (production)
+- `https://www.maage-brc.org` / `https://maage-brc.org` (production)
+- `https://dev.maage-brc.org` (staging)
 
 ### Bridge Files (experimental)
 

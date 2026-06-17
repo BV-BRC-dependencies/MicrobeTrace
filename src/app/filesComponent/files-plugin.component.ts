@@ -1891,7 +1891,7 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
     //debugger;
     const extension = file.extension ? file.extension : this.commonService.filterXSS(file.name).split('.').pop().toLowerCase();
     const isFasta = extension.indexOf('fas') > -1;
-    const isNewick = extension.indexOf('nwk') > -1 || extension.indexOf('newick') > -1;
+    const isNewick = extension.indexOf('nwk') > -1 || extension.indexOf('newick') > -1 || extension === 'tre' || extension === 'tree' || (file.format && file.format.toLowerCase() === 'newick');
     const isXL = (extension === 'xlsx' || extension === 'xls');
     const isJSON = (extension === 'json');
     const isAuspice = (extension === 'json' && file.contents.meta && file.contents.tree);

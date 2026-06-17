@@ -1141,7 +1141,7 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
 
             Papa.parse(file.contents, {
               header: true,
-              dynamicTyping: true,
+              dynamicTyping: false,
               skipEmptyLines: true,
               complete: results => {
                 if (!isCurrentLoad()) return;
@@ -1273,7 +1273,7 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
             let nodeCsvRows = 0;
             Papa.parse(file.contents, {
               header: true,
-              dynamicTyping: true,
+              dynamicTyping: false,
               skipEmptyLines: true,
               step: data => {
                 if (!isCurrentLoad()) return;

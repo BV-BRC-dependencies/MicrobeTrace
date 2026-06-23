@@ -28,6 +28,8 @@ export interface EmbedFileV1 {
 export interface EmbedPayloadMetadataV1 {
     datasetName?: string;
     sourceApp?: string;
+    defaultView?: string;
+    nodeLabel?: string;
 }
 
 export interface EmbedPayloadV1 {

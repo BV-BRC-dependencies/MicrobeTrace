@@ -173,6 +173,14 @@ export class EmbedHandoffService {
             normalized.sourceApp = metadata.sourceApp.trim();
         }
 
+        if (typeof metadata.defaultView === 'string' && metadata.defaultView.trim()) {
+            normalized.defaultView = metadata.defaultView.trim();
+        }
+
+        if (typeof metadata.nodeLabel === 'string' && metadata.nodeLabel.trim()) {
+            normalized.nodeLabel = metadata.nodeLabel.trim();
+        }
+
         return Object.keys(normalized).length ? normalized : undefined;
     }
 

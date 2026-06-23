@@ -560,6 +560,17 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
       this.addToTable(file);
     });
 
+    // Apply partner handoff display preferences
+    var handoffMeta = result.handoff && result.handoff.metadata;
+    if (handoffMeta) {
+      if (handoffMeta.defaultView) {
+        this.commonService.session.style.widgets['default-view'] = handoffMeta.defaultView;
+      }
+      if (handoffMeta.nodeLabel) {
+        this.commonService.session.style.widgets['node-label-variable'] = handoffMeta.nodeLabel;
+      }
+    }
+
     this.isLoadingFiles = false;
     this.commonService.session.network.initialLoad = true;
     this.cdr.markForCheck();

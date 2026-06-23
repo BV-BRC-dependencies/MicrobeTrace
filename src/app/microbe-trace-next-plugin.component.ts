@@ -1805,7 +1805,7 @@ export class MicrobeTraceNextHomeComponent extends AppComponentBase implements A
         if (Number.isFinite(styleThreshold) && styleThreshold !== Number(this.SelectedLinkThresholdVariable)) {
             this.SelectedLinkThresholdVariable = styleThreshold;
             this.commonService.GlobalSettingsModel.SelectedLinkThresholdVariable = styleThreshold;
-            this.threshold = styleThreshold;
+            this.threshold = String(styleThreshold);
             this.onLinkThresholdChanged();
         }
 

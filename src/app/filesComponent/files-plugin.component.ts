@@ -571,30 +571,9 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
       if (handoffMeta.style && (handoffMeta.style as any).widgets && (handoffMeta.style as any).widgets['default-view']) {
         this.commonService.session.style.widgets['default-view'] = (handoffMeta.style as any).widgets['default-view'];
       }
-      // Set up multi-view dashboard layout
-      if (handoffMeta.dashboard && handoffMeta.dashboard.views && handoffMeta.dashboard.views.length > 0) {
-        var views = handoffMeta.dashboard.views;
-        var activeView = handoffMeta.dashboard.activeView || views[0];
-        var layoutType = handoffMeta.dashboard.layout || 'tabs';
-        var activeIndex = Math.max(views.indexOf(activeView), 0);
-
-        // Override default-view with the active view
-        this.commonService.session.style.widgets['default-view'] = activeView;
-
-        // Build Golden Layout structure
-        var layoutContent = views.map(function (v) {
-          return { type: 'component', componentType: v, title: v };
-        });
-        var root = layoutType === 'tabs'
-          ? { type: 'stack', activeItemIndex: activeIndex, content: layoutContent }
-          : { type: layoutType, content: layoutContent };
-
-        this.commonService.pendingDashboardRestore = {
-          dashboardLayout: { root: root },
-          tabs: views.map(function (v) {
-            return { label: v, tabTitle: v, isActive: v === activeView, componentRef: null, templateRef: null };
-          })
-        };
+      // Set active view from dashboard config
+      if (handoffMeta.dashboard && handoffMeta.dashboard.activeView) {
+        this.commonService.session.style.widgets['default-view'] = handoffMeta.dashboard.activeView;
       }
     }
 

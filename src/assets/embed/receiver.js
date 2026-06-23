@@ -408,7 +408,7 @@
         files: payload.files
       };
 
-      setStatus('Validating partner handoff…', 'Saving the dataset for MicrobeTrace to load.');
+      setStatus('Transferring data to MicrobeTrace…', 'Saving the dataset for MicrobeTrace to load.');
       await window.localforage.setItem('handoff:' + handoffId, record);
       postMessageToOpener({
         type: TRANSFER_TYPE,

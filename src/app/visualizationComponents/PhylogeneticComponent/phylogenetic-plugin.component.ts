@@ -1203,6 +1203,11 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
   // Leaf Labels
   if (this.settings['tree-leaf-label-show'] != this.SelectedLeafLabelShowVariable) this.SelectedLeafLabelShowVariable = this.settings['tree-leaf-label-show']
   if (this.settings['tree-leaf-label-size'] != this.SelectedLeafLabelSizeVariable) this.SelectedLeafLabelSizeVariable = this.settings['tree-leaf-label-size']
+  // Leaf label variable (which field to display)
+  var leafLabelVar = this.settings['physics-tree-node-label-variable'] || this.settings['node-label-variable'];
+  if (leafLabelVar && leafLabelVar !== 'None' && leafLabelVar !== this.SelectedLeafLabelVariable) {
+    this.onLeafLabelVariableChange(leafLabelVar);
+  }
 
   // Leaf Nodes
   if (this.settings['tree-leaf-node-show'] != this.SelectedLeafNodeShowVariable) this.SelectedLeafNodeShowVariable = this.settings['tree-leaf-node-show']

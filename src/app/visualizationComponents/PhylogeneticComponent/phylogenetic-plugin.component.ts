@@ -93,7 +93,7 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
 
   // Leaves Tab
   SelectedLeafLabelShowVariable = this.settings['tree-leaf-label-show'] ?? true;
-  SelectedLeafLabelVariable: string = '_id';
+  SelectedLeafLabelVariable: string = this.settings['physics-tree-node-label-variable'] || this.settings['node-label-variable'] || '_id';
   LeafLabelFieldList: SelectItem[] = [];
   SelectedLeafLabelSizeVariable = this.settings['tree-leaf-label-size'] ?? 12;
   SelectedLeafTooltipShowVariable = this.settings['tree-tooltip-show'] ?? true;

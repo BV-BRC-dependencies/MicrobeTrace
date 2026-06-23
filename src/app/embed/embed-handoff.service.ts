@@ -185,8 +185,8 @@ export class EmbedHandoffService {
             normalized.style = metadata.style as Record<string, unknown>;
         }
 
-        if (metadata.dashboard && this.isPlainObject(metadata.dashboard) && Array.isArray((metadata.dashboard as any).views)) {
-            normalized.dashboard = metadata.dashboard as any;
+        if (metadata.dashboard && this.isPlainObject(metadata.dashboard)) {
+            normalized.dashboard = metadata.dashboard as Record<string, unknown>;
         }
 
         return Object.keys(normalized).length ? normalized : undefined;

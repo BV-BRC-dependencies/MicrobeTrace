@@ -563,7 +563,7 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
     // Store handoff metadata for post-launch style application
     var handoffMeta = result.handoff && result.handoff.metadata;
 
-    // Apply default-view before launch
+    // Apply default-view and dashboard layout before launch
     if (handoffMeta) {
       var defaultView = null;
       if (handoffMeta.defaultView) {
@@ -572,9 +572,28 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
       if (handoffMeta.style && (handoffMeta.style as any).widgets && (handoffMeta.style as any).widgets['default-view']) {
         defaultView = (handoffMeta.style as any).widgets['default-view'];
       }
+
+      // Set up multi-view dashboard from saved layout
+      if (handoffMeta.dashboard) {
+        var dashboard = handoffMeta.dashboard as any;
+        if (dashboard.dashboardLayout && dashboard.dashboardLayout.root) {
+          this.commonService.pendingDashboardRestore = {
+            dashboardLayout: dashboard.dashboardLayout,
+            tabs: dashboard.tabs || [],
+            dashboardState: dashboard.dashboardState
+          };
+          // Set default-view from the active tab
+          if (dashboard.tabs && Array.isArray(dashboard.tabs)) {
+            var activeTab = dashboard.tabs.find(function (t) { return t.isActive; });
+            if (activeTab) {
+              defaultView = activeTab.label;
+            }
+          }
+        }
+      }
+
       if (defaultView) {
         this.commonService.session.style.widgets['default-view'] = defaultView;
-        // Also set the DOM element so launchClick reads the correct value
         $('#default-view').val(defaultView);
         this.SelectedDefaultViewVariable = defaultView;
       }

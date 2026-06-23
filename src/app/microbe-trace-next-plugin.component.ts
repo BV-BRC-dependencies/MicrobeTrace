@@ -545,7 +545,7 @@ export class MicrobeTraceNextHomeComponent extends AppComponentBase implements A
         this.store.styleFileApplied$
             .pipe(takeUntil(this.destroy$))
             .subscribe(() => {
-                this.applySavedNodeShapeSettingsFromSession();
+                this.applyStyleFileSettings();
             });
 
         // Subscribe to metric changes

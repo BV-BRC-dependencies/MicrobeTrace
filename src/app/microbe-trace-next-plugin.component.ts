@@ -1800,6 +1800,25 @@ export class MicrobeTraceNextHomeComponent extends AppComponentBase implements A
             }
         }
 
+        // Apply link threshold from style
+        var styleThreshold = Number(this.widgets['link-threshold']);
+        if (Number.isFinite(styleThreshold) && styleThreshold !== Number(this.SelectedLinkThresholdVariable)) {
+            this.SelectedLinkThresholdVariable = styleThreshold;
+            this.commonService.GlobalSettingsModel.SelectedLinkThresholdVariable = styleThreshold;
+            this.threshold = styleThreshold;
+            this.onLinkThresholdChanged();
+        }
+
+        // Apply distance metric from style
+        var styleMetric = this.widgets['default-distance-metric'];
+        if (styleMetric && styleMetric !== this.SelectedDistanceMetricVariable) {
+            this.SelectedDistanceMetricVariable = styleMetric;
+            this.commonService.GlobalSettingsModel.SelectedDistanceMetricVariable = styleMetric;
+            this.metric = styleMetric;
+            this.store.updatecurrentThresholdStepSize(styleMetric);
+            this.onDistanceMetricChanged();
+        }
+
         this.applySavedNodeShapeSettingsFromSession();
     }
 

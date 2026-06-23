@@ -563,17 +563,20 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
     // Store handoff metadata for post-launch style application
     var handoffMeta = result.handoff && result.handoff.metadata;
 
-    // Apply default-view and dashboard layout before launch
+    // Apply default-view before launch
     if (handoffMeta) {
+      var defaultView = null;
       if (handoffMeta.defaultView) {
-        this.commonService.session.style.widgets['default-view'] = handoffMeta.defaultView;
+        defaultView = handoffMeta.defaultView;
       }
       if (handoffMeta.style && (handoffMeta.style as any).widgets && (handoffMeta.style as any).widgets['default-view']) {
-        this.commonService.session.style.widgets['default-view'] = (handoffMeta.style as any).widgets['default-view'];
+        defaultView = (handoffMeta.style as any).widgets['default-view'];
       }
-      // Set active view from dashboard config
-      if (handoffMeta.dashboard && handoffMeta.dashboard.activeView) {
-        this.commonService.session.style.widgets['default-view'] = handoffMeta.dashboard.activeView;
+      if (defaultView) {
+        this.commonService.session.style.widgets['default-view'] = defaultView;
+        // Also set the DOM element so launchClick reads the correct value
+        $('#default-view').val(defaultView);
+        this.SelectedDefaultViewVariable = defaultView;
       }
     }
 

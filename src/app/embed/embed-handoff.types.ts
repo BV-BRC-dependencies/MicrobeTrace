@@ -32,7 +32,6 @@ export interface EmbedPayloadMetadataV1 {
     nodeLabel?: string;
     style?: Record<string, unknown>;
     dashboard?: Record<string, unknown>;
-    dashboard?: EmbedDashboardConfig;
 }
 
 export interface EmbedPayloadV1 {

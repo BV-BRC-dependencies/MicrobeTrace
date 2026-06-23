@@ -573,25 +573,6 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
         defaultView = (handoffMeta.style as any).widgets['default-view'];
       }
 
-      // Set up multi-view dashboard from saved layout
-      if (handoffMeta.dashboard) {
-        var dashboard = handoffMeta.dashboard as any;
-        if (dashboard.dashboardLayout && dashboard.dashboardLayout.root) {
-          this.commonService.pendingDashboardRestore = {
-            dashboardLayout: dashboard.dashboardLayout,
-            tabs: dashboard.tabs || [],
-            dashboardState: dashboard.dashboardState
-          };
-          // Set default-view from the active tab
-          if (dashboard.tabs && Array.isArray(dashboard.tabs)) {
-            var activeTab = dashboard.tabs.find(function (t) { return t.isActive; });
-            if (activeTab) {
-              defaultView = activeTab.label;
-            }
-          }
-        }
-      }
-
       if (defaultView) {
         this.commonService.session.style.widgets['default-view'] = defaultView;
         $('#default-view').val(defaultView);

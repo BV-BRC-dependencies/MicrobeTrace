@@ -181,6 +181,10 @@ export class EmbedHandoffService {
             normalized.nodeLabel = metadata.nodeLabel.trim();
         }
 
+        if (metadata.style && this.isPlainObject(metadata.style)) {
+            normalized.style = metadata.style as Record<string, unknown>;
+        }
+
         return Object.keys(normalized).length ? normalized : undefined;
     }
 

@@ -30,6 +30,7 @@ export interface EmbedPayloadMetadataV1 {
     sourceApp?: string;
     defaultView?: string;
     nodeLabel?: string;
+    style?: Record<string, unknown>;
 }
 
 export interface EmbedPayloadV1 {

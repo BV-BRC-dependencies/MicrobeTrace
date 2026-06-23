@@ -591,6 +591,11 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
           this.commonService.session.style.widgets['node-label-variable'] = handoffMeta.nodeLabel;
           this.commonService.onStyleFileApplied();
         }
+        // Switch to the default view from the style
+        var styleDefaultView = (handoffMeta.style as any).widgets && (handoffMeta.style as any).widgets['default-view'];
+        if (styleDefaultView) {
+          this.commonService.launchView(styleDefaultView);
+        }
       }, 5000);
     } else if (handoffMeta && handoffMeta.nodeLabel) {
       setTimeout(() => {

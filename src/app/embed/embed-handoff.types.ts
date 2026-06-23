@@ -25,12 +25,19 @@ export interface EmbedFileV1 {
     options?: EmbedFileOptionsV1;
 }
 
+export interface EmbedDashboardConfig {
+    views: string[];
+    activeView?: string;
+    layout?: 'tabs' | 'row' | 'column';
+}
+
 export interface EmbedPayloadMetadataV1 {
     datasetName?: string;
     sourceApp?: string;
     defaultView?: string;
     nodeLabel?: string;
     style?: Record<string, unknown>;
+    dashboard?: EmbedDashboardConfig;
 }
 
 export interface EmbedPayloadV1 {

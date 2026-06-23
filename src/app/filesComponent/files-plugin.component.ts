@@ -560,43 +560,16 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
       this.addToTable(file);
     });
 
-    // Apply partner handoff display preferences
+    // Store handoff metadata for post-launch style application
     var handoffMeta = result.handoff && result.handoff.metadata;
+
+    // Apply default-view before launch so the correct view opens
     if (handoffMeta) {
-      // Apply full style object if provided (colors, symbols, widget settings)
-      if (handoffMeta.style) {
-        var style = handoffMeta.style as any;
-        // Merge top-level style arrays (colors, symbols, etc.)
-        var arrayKeys = ['linkAlphas', 'linkColors', 'nodeAlphas', 'nodeColors', 'nodeSymbols',
-                         'polygonAlphas', 'polygonColors'];
-        arrayKeys.forEach(function (key) {
-          if (Array.isArray(style[key])) {
-            (this.commonService.session.style as any)[key] = style[key];
-          }
-        }.bind(this));
-        // Merge table/value objects
-        var objectKeys = ['nodeColorsTable', 'nodeColorsTableKeys', 'nodeColorsTableHistory',
-                          'linkColorsTable', 'linkColorsTableKeys', 'linkColorsTableHistory',
-                          'nodeSymbolsTable', 'nodeSymbolsTableKeys',
-                          'nodeValueNames', 'linkValueNames', 'polygonValueNames', 'overwrite'];
-        objectKeys.forEach(function (key) {
-          if (style[key] && typeof style[key] === 'object' && !Array.isArray(style[key])) {
-            (this.commonService.session.style as any)[key] = style[key];
-          }
-        }.bind(this));
-        // Merge widgets (individual settings)
-        if (style.widgets && typeof style.widgets === 'object') {
-          Object.keys(style.widgets).forEach(function (key) {
-            this.commonService.session.style.widgets[key] = style.widgets[key];
-          }.bind(this));
-        }
-      }
-      // Individual overrides take precedence over style object
       if (handoffMeta.defaultView) {
         this.commonService.session.style.widgets['default-view'] = handoffMeta.defaultView;
       }
-      if (handoffMeta.nodeLabel) {
-        this.commonService.session.style.widgets['node-label-variable'] = handoffMeta.nodeLabel;
+      if (handoffMeta.style && (handoffMeta.style as any).widgets && (handoffMeta.style as any).widgets['default-view']) {
+        this.commonService.session.style.widgets['default-view'] = (handoffMeta.style as any).widgets['default-view'];
       }
     }
 
@@ -607,6 +580,24 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
     setTimeout(() => {
       this.launchClick();
     }, 100);
+
+    // Apply style after data processing completes (deferred to avoid
+    // being overwritten by applyPatristicDistanceDefaults)
+    if (handoffMeta && handoffMeta.style) {
+      setTimeout(() => {
+        this.commonService.applyStyle(handoffMeta.style);
+        // Also apply individual overrides
+        if (handoffMeta.nodeLabel) {
+          this.commonService.session.style.widgets['node-label-variable'] = handoffMeta.nodeLabel;
+          this.commonService.onStyleFileApplied();
+        }
+      }, 5000);
+    } else if (handoffMeta && handoffMeta.nodeLabel) {
+      setTimeout(() => {
+        this.commonService.session.style.widgets['node-label-variable'] = handoffMeta.nodeLabel;
+        this.commonService.onStyleFileApplied();
+      }, 5000);
+    }
   }
 
   private dismissWelcomeOverlay() {

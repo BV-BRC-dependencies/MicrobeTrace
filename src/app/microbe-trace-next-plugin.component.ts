@@ -1802,7 +1802,8 @@ export class MicrobeTraceNextHomeComponent extends AppComponentBase implements A
 
         // Apply link threshold from style
         var styleThreshold = Number(this.widgets['link-threshold']);
-        if (Number.isFinite(styleThreshold) && styleThreshold !== Number(this.SelectedLinkThresholdVariable)) {
+        console.log('[applyStyleFileSettings] threshold from style:', styleThreshold, 'current:', Number(this.SelectedLinkThresholdVariable));
+        if (Number.isFinite(styleThreshold)) {
             this.SelectedLinkThresholdVariable = styleThreshold;
             this.commonService.GlobalSettingsModel.SelectedLinkThresholdVariable = styleThreshold;
             this.threshold = String(styleThreshold);

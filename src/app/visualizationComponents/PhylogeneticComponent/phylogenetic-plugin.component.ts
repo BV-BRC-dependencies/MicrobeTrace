@@ -23,6 +23,7 @@ import { MicobeTraceNextPluginEvents } from '../../helperClasses/interfaces';
 import { throws } from 'assert';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonStoreService } from '@app/contactTraceCommonServices/common-store.services';
+import { dismissRuntimeError } from '../../runtime-security/runtime-error.store';
 import { getTreeNodeShapeDataUri, getTreeNodeShapeScale, resolveNodeShapeForNode } from '@app/contactTraceCommonServices/node-shapes';
 
 /**
@@ -578,16 +579,15 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
     this.goldenLayoutComponentResize();
     this.openTree();
 
-    // Re-render after container has been sized by Golden Layout
-    setTimeout(() => {
-      if (this.tree) {
-        this.openCenter();
-      }
-    }, 300);
+    // openTree may trigger an SVGLength error (container not yet sized).
+    // The error banner's DOM insertion causes a layout shift that triggers
+    // Golden Layout to resize the container, which fires openCenter() and
+    // renders the tree correctly. Auto-dismiss the banner after that cascade.
+    setTimeout(() => dismissRuntimeError(), 500);
 
     this.container.on('resize', () => {
       this.goldenLayoutComponentResize();
-      this.openCenter();
+      this.openCenter()
     })
     this.container.on('hide', () => {
       this.viewActive = false;
@@ -596,9 +596,6 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
     this.container.on('show', () => {
       this.viewActive = true;
       this.cdref.detectChanges();
-      if (this.tree) {
-        this.openCenter();
-      }
     })
 
     this.store.clusterUpdate$.pipe(takeUntil(this.destroy$)).subscribe(() => {

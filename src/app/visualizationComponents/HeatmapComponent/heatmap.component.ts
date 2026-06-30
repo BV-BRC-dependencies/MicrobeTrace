@@ -343,6 +343,7 @@ export class HeatmapComponent extends BaseComponentDirective implements OnInit, 
 
 
     const config = {
+      type: 'category',
       autotick: false,
       showticklabels: this.heatmapShowLabels
     };

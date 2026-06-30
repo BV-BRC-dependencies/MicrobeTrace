@@ -2942,7 +2942,9 @@ align(params): Promise<any> {
             let dm : any = '';
             if (this.session.data['newick']){
                 let treeObj = patristic.parseNewick(this.session.data['newick']);
-                dm = treeObj.toMatrix();
+                let result = treeObj.toMatrix();
+                dm = result.matrix;
+                labels = result.ids.map(id => String(id));
             } else {
                 labels = this.session.data.nodes.filter(this.hasSeq).map(d => d.id);
                 if (labels.length === 0) labels = this.session.data.nodes.filter(this.hasSeq).map(d => d._id);

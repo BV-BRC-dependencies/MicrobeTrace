@@ -639,8 +639,12 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
 
   openCenter() {
     const thisTree = this.commonService.visuals.phylogenetic.tree;
-    thisTree.recenter()
-      .redraw();
+    try {
+      thisTree.recenter()
+        .redraw();
+    } catch (e) {
+      // SVGLength read fails when container hasn't been laid out yet — harmless
+    }
     this.styleTree();
   }
 

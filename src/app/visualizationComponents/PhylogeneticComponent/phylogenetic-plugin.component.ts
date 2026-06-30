@@ -576,26 +576,18 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
 
 
     this.goldenLayoutComponentResize();
+    this.openTree();
 
-    // Defer tree build until the SVG container has layout dimensions.
-    // Golden Layout may not have sized the container yet at ngOnInit time,
-    // causing SVGLength read errors in the TidyTree rendering pipeline.
-    let retries = 0;
-    const tryOpenTree = () => {
-      const canvas = document.getElementById('phylocanvas');
-      if (canvas && canvas.clientWidth > 0 && canvas.clientHeight > 0) {
-        this.openTree();
-      } else if (retries++ < 30) {
-        requestAnimationFrame(tryOpenTree);
-      }
-    };
-    requestAnimationFrame(tryOpenTree);
-
-    this.container.on('resize', () => {
-      this.goldenLayoutComponentResize();
+    // Re-render after container has been sized by Golden Layout
+    setTimeout(() => {
       if (this.tree) {
         this.openCenter();
       }
+    }, 300);
+
+    this.container.on('resize', () => {
+      this.goldenLayoutComponentResize();
+      this.openCenter();
     })
     this.container.on('hide', () => {
       this.viewActive = false;
@@ -604,6 +596,9 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
     this.container.on('show', () => {
       this.viewActive = true;
       this.cdref.detectChanges();
+      if (this.tree) {
+        this.openCenter();
+      }
     })
 
     this.store.clusterUpdate$.pipe(takeUntil(this.destroy$)).subscribe(() => {

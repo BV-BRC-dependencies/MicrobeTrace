@@ -100,6 +100,10 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
   displaySequenceSettings: boolean = false;
   displayloadingInformationModal: boolean = false;
   handoffError: string | null = null;
+  // Retained handoff style metadata so a manual Launch from the Files tab
+  // re-applies the partner-provided style, not just the initial auto-launch.
+  private pendingHandoffStyle: any = null;
+  private pendingHandoffNodeLabel: string | null = null;
 
   nodeIds: { fileName: string; ids: string[] }[] = [];
   edgeIds: { fileName: string; ids: { source: string; target: string }[] }[] = [];
@@ -584,24 +588,41 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
     this.commonService.session.network.initialLoad = true;
     this.cdr.markForCheck();
 
+    // Retain a pristine deep copy of the handoff style so a later manual Launch
+    // can re-apply it. A shallow reference would be corrupted because
+    // applyStyle() assigns the object straight onto session.style, and the
+    // subsequent launch mutates session.style.widgets in place.
+    this.pendingHandoffStyle = (handoffMeta && handoffMeta.style) ? cloneDeep(handoffMeta.style) : null;
+    this.pendingHandoffNodeLabel = (handoffMeta && handoffMeta.nodeLabel) || null;
+
+    // launchClick() re-applies the retained handoff style itself (deferred to
+    // avoid being overwritten by applyPatristicDistanceDefaults).
     setTimeout(() => {
       this.launchClick();
     }, 100);
+  }
 
-    // Apply style after data processing completes (deferred to avoid
-    // being overwritten by applyPatristicDistanceDefaults)
-    if (handoffMeta && handoffMeta.style) {
+  // Applies the retained partner handoff style, deferred so it lands after the
+  // launch's data processing (which would otherwise overwrite it via
+  // applyPatristicDistanceDefaults). Safe to call on every launchClick.
+  private applyPendingHandoffStyle() {
+    if (this.pendingHandoffStyle) {
+      // Clone again on every apply: applyStyle() takes the object by reference
+      // and the launch mutates it, so each launch needs its own fresh copy or
+      // the retained pristine style would be polluted after the first apply.
+      const style = cloneDeep(this.pendingHandoffStyle);
+      const nodeLabel = this.pendingHandoffNodeLabel;
       setTimeout(() => {
-        this.commonService.applyStyle(handoffMeta.style);
-        // Also apply individual overrides
-        if (handoffMeta.nodeLabel) {
-          this.commonService.session.style.widgets['node-label-variable'] = handoffMeta.nodeLabel;
+        this.commonService.applyStyle(style);
+        if (nodeLabel) {
+          this.commonService.session.style.widgets['node-label-variable'] = nodeLabel;
           this.commonService.onStyleFileApplied();
         }
       }, 5000);
-    } else if (handoffMeta && handoffMeta.nodeLabel) {
+    } else if (this.pendingHandoffNodeLabel) {
+      const nodeLabel = this.pendingHandoffNodeLabel;
       setTimeout(() => {
-        this.commonService.session.style.widgets['node-label-variable'] = handoffMeta.nodeLabel;
+        this.commonService.session.style.widgets['node-label-variable'] = nodeLabel;
         this.commonService.onStyleFileApplied();
       }, 5000);
     }
@@ -846,6 +867,10 @@ export class FilesComponent extends BaseComponentDirective implements OnInit {
       // Process the data files loaded.
       this.creatLaunchSequences(loadGeneration);
     }, 1000);
+
+    // Re-apply any retained partner handoff style so it survives a manual
+    // Launch from the Files tab, not just the initial auto-launch.
+    this.applyPendingHandoffStyle();
   }
 
   /**

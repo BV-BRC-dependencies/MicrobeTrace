@@ -23,7 +23,7 @@ import { MicobeTraceNextPluginEvents } from '../../helperClasses/interfaces';
 import { throws } from 'assert';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonStoreService } from '@app/contactTraceCommonServices/common-store.services';
-import { dismissRuntimeError } from '../../runtime-security/runtime-error.store';
+
 import { getTreeNodeShapeDataUri, getTreeNodeShapeScale, resolveNodeShapeForNode } from '@app/contactTraceCommonServices/node-shapes';
 
 /**
@@ -162,6 +162,9 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
 
   private visuals: MicrobeTraceNextVisuals;
   private destroy$ = new Subject<void>();
+  private hostElement: HTMLElement;
+  private resizeObserver: ResizeObserver | null = null;
+  private hasRenderedWithSize = false;
 
   constructor(injector: Injector,
     private eventManager: EventManager,
@@ -175,6 +178,7 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
 
     super(elRef.nativeElement);
 
+    this.hostElement = elRef.nativeElement;
     this.visuals = commonService.visuals;
     this.commonService.visuals.phylogenetic = this;
   }
@@ -526,8 +530,13 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
   }
 
   getTreeOptions = () => {
+    // Scope the canvas to THIS component's host element. During a relaunch the
+    // old Phylogenetic component's #phylocanvas is still in the DOM while the
+    // new one is created, so a global d3.select('#phylocanvas') would grab the
+    // stale element (about to be removed), leaving the new canvas SVG-less.
+    const scopedCanvas = this.hostElement.querySelector('#phylocanvas') || '#phylocanvas';
     const treeOpts = {
-      parent: '#phylocanvas',
+      parent: scopedCanvas,
       layout: this.SelectedTreeLayoutVariable,
       mode: this.SelectedTreeModeVariable,
       type: this.SelectedTreeTypeVariable,
@@ -577,13 +586,15 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
 
 
     this.goldenLayoutComponentResize();
-    this.openTree();
+    // openTree() is async; once the tree object exists, attempt a sized render.
+    this.openTree().then(() => this.tryRenderTree());
 
-    // openTree may trigger an SVGLength error (container not yet sized).
-    // The error banner's DOM insertion causes a layout shift that triggers
-    // Golden Layout to resize the container, which fires openCenter() and
-    // renders the tree correctly. Auto-dismiss the banner after that cascade.
-    setTimeout(() => dismissRuntimeError(), 500);
+    // Golden Layout creates components in a hidden virtual-sizing phase where
+    // the host element has 0 width/height, so the initial openTree() renders a
+    // collapsed tree (NaN link coordinates). Watch for the container gaining
+    // real dimensions and redraw once both the tree and a real size are ready.
+    this.resizeObserver = new ResizeObserver(() => this.tryRenderTree());
+    this.resizeObserver.observe(this.hostElement);
 
     this.container.on('resize', () => {
       this.goldenLayoutComponentResize();
@@ -611,6 +622,10 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
   }
 
   ngOnDestroy(): void {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -649,6 +664,24 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
     thisTree.recenter()
       .redraw();
     this.styleTree();
+  }
+
+  // Render the tree only once both conditions hold: the tree object has been
+  // built (openTree is async) and the host container actually has non-zero
+  // dimensions (Golden Layout's virtual-sizing phase reports 0x0). Called from
+  // both the openTree() resolution and the ResizeObserver, whichever is later.
+  private tryRenderTree(): void {
+    if (this.hasRenderedWithSize) return;
+    if (!this.tree) return;
+    const rect = this.hostElement.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    this.hasRenderedWithSize = true;
+    this.goldenLayoutComponentResize();
+    this.openCenter();
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
   }
 
   openRefreshScreen() {
@@ -1171,6 +1204,7 @@ export class PhylogeneticComponent extends BaseComponentDirective implements OnI
 
   applyStyleFileSettings() {
   this.settings = this.commonService.session.style.widgets;
+  if (!this.tree) { return; }
 
   // Layout & geometry
   const layout = this.settings['tree-layout-horizontal'] ? 'horizontal'

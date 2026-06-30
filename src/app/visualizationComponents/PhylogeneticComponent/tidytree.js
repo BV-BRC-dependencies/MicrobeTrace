@@ -138,11 +138,14 @@ TidyTree.prototype.draw = function (selector) {
 
   let tree = d3.tree();
 
+  let parentWidth = parseFloat(parent.style("width")) || 0;
+  let parentHeight = parseFloat(parent.style("height")) || 0;
+
   let svg = parent
     .html(null)
     .append("svg")
-    .attr("width", "100%")
-    .attr("height", "100%");
+    .attr("width", parentWidth)
+    .attr("height", parentHeight);
 
   let g = svg.append("g");
 
@@ -543,8 +546,15 @@ function labeler(d) {
 TidyTree.prototype.redraw = function () {
   let parent = this.parent;
 
-  this.width  = (parseFloat(parent.style("width" )) - this.margin[1] - this.margin[3]     ) * this.hStretch;
-  this.height = (parseFloat(parent.style("height")) - this.margin[0] - this.margin[2] - 25) * this.vStretch;
+  let parentWidth = parseFloat(parent.style("width")) || 0;
+  let parentHeight = parseFloat(parent.style("height")) || 0;
+
+  this.width  = (parentWidth  - this.margin[1] - this.margin[3]     ) * this.hStretch;
+  this.height = (parentHeight - this.margin[0] - this.margin[2] - 25) * this.vStretch;
+
+  parent.select("svg")
+    .attr("width", parentWidth)
+    .attr("height", parentHeight);
 
   this.scalar =
     this.layout === "horizontal" ? this.width :

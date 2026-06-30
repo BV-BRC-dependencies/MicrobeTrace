@@ -1,5 +1,5 @@
 import { ErrorHandler, Injectable } from '@angular/core';
-import { describeError, reportRuntimeError } from './runtime-error.store';
+import { describeError, dismissRuntimeError, reportRuntimeError } from './runtime-error.store';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {

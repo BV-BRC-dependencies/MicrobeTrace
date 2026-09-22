@@ -413,10 +413,14 @@ export class MapComponent extends BaseComponentDirective implements OnInit, Mico
         //TODO: put this in a config?
         const mapTokenKey: string = 'sk.eyJ1IjoicndhdHR5IiwiYSI6ImNrY2RuMWlzcDAwMmUyc3A5ejl3ODEzMXoifQ.qpXOouVsI6P8-HOHUWofuQ'
 
-        this.layers.basemap = tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 20,
-            attribution: '© <a href="https://openstreetmap.org/about" target="_blank">OpenStreetMap</a> contributors'
-        }); 
+        // Esri rather than tile.openstreetmap.org: OSM's tile usage policy blocks
+        // unidentified bulk traffic and serves a 403 "Access blocked" image for
+        // every tile. CARTO is not an option either — it returns HTTP 200 but
+        // stamps "API KEY REQUIRED" across each tile.
+        this.layers.basemap = tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: 'Tiles © <a href="https://www.esri.com" target="_blank">Esri</a>'
+        });
         this.layers.satellite = tileLayer(`https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/256/{z}/{x}/{y}?access_token=${mapTokenKey}`);
 
         this.leafletInitialOptions = {
